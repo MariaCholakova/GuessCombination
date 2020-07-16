@@ -3,15 +3,50 @@
 #include <algorithm>
 #include <ctime>
 
+const int COLOR_CNT = 6;
+
+void printVector(const std::vector<int>& v) {
+    for (int a : v) {
+        std::cout << a << " ";
+    }
+    std::cout << std::endl;
+}
+
+void makeGuess(std::vector<int>& numbers) {
+    std::cout << "Enter 4 numbers : " << std::endl;
+    size_t i = 0;
+    while (i < 4 && std::cin >> numbers[i]) {
+        ++i;
+    }
+    printVector(numbers);
+}
+
+
 void orderPawns(std::vector<int>& board, const int colorsCount) {
     std::generate(board.begin(), board.end(), [ colorsCount ] { return std::rand() % colorsCount; });
 }
 
+std::vector<int> checkGuess(const std::vector<int>& guessingBoard, const std::vector<int>& correctBoard, const int colorsCount) {
+    int fullyAccurate = 0;     // count of pawns where both color and position match
+    int onlyColorAccurate = 0; // count of pawns where only color matches
 
-void printBoard(const std::vector<int>& board) {
-    for (int a : board) {
-        std::cout << a << std::endl;
+    std::vector<unsigned int> correctMap(colorsCount, 0);
+    std::vector<unsigned int> guessMap(colorsCount, 0);
+    for (size_t i = 0; i < correctBoard.size(); i++) {
+
+        if (correctBoard[i] == guessingBoard[i])
+            fullyAccurate++;
+        else {
+            correctMap[correctBoard[i]]++;
+            guessMap[guessingBoard[i]]++;
+        }
     }
+
+    for (size_t  i = 0; i < colorsCount; i++) {
+        onlyColorAccurate += std::min(correctMap[i], guessMap[i]);
+    }
+
+    return { fullyAccurate, onlyColorAccurate };
 }
 
 int main()
@@ -20,11 +55,17 @@ int main()
     std::srand(std::time(0));
 
     // the board has 4 holes
-    std::vector<int> board(4);
+    std::vector<int> realBoard(4);
 
     // Player1 puts random colors(numbers 0-5) in the 4 holes
-    orderPawns(board, 6);
-    printBoard(board);
+    orderPawns(realBoard, COLOR_CNT);
+    printVector(realBoard);
+
+    std::vector<int> guessBoard(4);
+    makeGuess(guessBoard);
+
+    std::vector<int> guessResult = checkGuess(guessBoard, realBoard, COLOR_CNT);
+    printVector(guessResult);
 
     return 0;
 }
