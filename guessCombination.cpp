@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <ctime>
 
-const int COLOR_CNT = 6;
+const int COLORS_CNT = 6;
 
 void printVector(const std::vector<int>& v) {
     for (int a : v) {
@@ -26,7 +26,7 @@ void orderPawns(std::vector<int>& board, const int colorsCount) {
     std::generate(board.begin(), board.end(), [ colorsCount ] { return std::rand() % colorsCount; });
 }
 
-std::vector<int> checkGuess(const std::vector<int>& guessingBoard, const std::vector<int>& correctBoard, const int colorsCount) {
+std::vector<int> checkGuess(const std::vector<int>& guessBoard, const std::vector<int>& correctBoard, const int colorsCount) {
     int fullyAccurate = 0;     // count of pawns where both color and position match
     int onlyColorAccurate = 0; // count of pawns where only color matches
 
@@ -34,11 +34,11 @@ std::vector<int> checkGuess(const std::vector<int>& guessingBoard, const std::ve
     std::vector<unsigned int> guessMap(colorsCount, 0);
     for (size_t i = 0; i < correctBoard.size(); i++) {
 
-        if (correctBoard[i] == guessingBoard[i])
+        if (correctBoard[i] == guessBoard[i])
             fullyAccurate++;
         else {
             correctMap[correctBoard[i]]++;
-            guessMap[guessingBoard[i]]++;
+            guessMap[guessBoard[i]]++;
         }
     }
 
@@ -58,13 +58,13 @@ int main()
     std::vector<int> realBoard(4);
 
     // Player1 puts random colors(numbers 0-5) in the 4 holes
-    orderPawns(realBoard, COLOR_CNT);
+    orderPawns(realBoard, COLORS_CNT);
     printVector(realBoard);
 
     std::vector<int> guessBoard(4);
     makeGuess(guessBoard);
 
-    std::vector<int> guessResult = checkGuess(guessBoard, realBoard, COLOR_CNT);
+    std::vector<int> guessResult = checkGuess(guessBoard, realBoard, COLORS_CNT);
     printVector(guessResult);
 
     return 0;
