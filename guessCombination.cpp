@@ -9,7 +9,6 @@ void printVector(const std::vector<int>& v) {
     for (int a : v) {
         std::cout << a << " ";
     }
-    std::cout << std::endl;
 }
 
 void makeGuess(std::vector<int>& numbers) {
@@ -19,11 +18,6 @@ void makeGuess(std::vector<int>& numbers) {
         ++i;
     }
     printVector(numbers);
-}
-
-
-void orderPawns(std::vector<int>& board, const int colorsCount) {
-    std::generate(board.begin(), board.end(), [ colorsCount ] { return std::rand() % colorsCount; });
 }
 
 std::vector<int> checkGuess(const std::vector<int>& guessBoard, const std::vector<int>& correctBoard, const int colorsCount) {
@@ -49,6 +43,51 @@ std::vector<int> checkGuess(const std::vector<int>& guessBoard, const std::vecto
     return { fullyAccurate, onlyColorAccurate };
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+void initBoard(std::vector<int>& board, const int colorsCount) {
+    std::generate(board.begin(), board.end(), [colorsCount] { return std::rand() % colorsCount; });
+}
+
+void findSolution(const std::vector<int>& correctBoard, const int colorsCount) {
+
+    // find out the frequency of each color
+    std::vector<int> colorsHistogram(colorsCount, 0);
+
+    for (int color = 0; color < colorsCount; color++) {
+        printVector({ color, color, color, color });
+        for (int number : correctBoard) {
+            if (number == color) {
+                colorsHistogram[color]++;
+            }
+        }
+        std::cout << "  - " << colorsHistogram[color] << " fully matched pawns" << std::endl;
+    }
+
+    // get the necessary colors which compose the solution
+    std::vector<int> necessaryColors;
+    for (int i = 0; i < colorsCount; i++) {
+        while (colorsHistogram[i] > 0) {
+            necessaryColors.push_back(i);
+            colorsHistogram[i]--;
+        }
+    }
+
+    // check all permutations of the necessary colors
+    do {
+        printVector(necessaryColors);
+        std::cout << std::endl;
+
+        if (std::equal(necessaryColors.begin(), necessaryColors.end(), correctBoard.begin())) {
+            std::cout << "Solution is : ";
+            printVector(necessaryColors);
+            break;
+        }
+
+    } while (std::next_permutation(necessaryColors.begin(), necessaryColors.end()));
+}
+
 int main()
 {
     // use current time as seed for random generator
@@ -58,14 +97,11 @@ int main()
     std::vector<int> realBoard(4);
 
     // Player1 puts random colors(numbers 0-5) in the 4 holes
-    orderPawns(realBoard, COLORS_CNT);
+    initBoard(realBoard, COLORS_CNT);
     printVector(realBoard);
+    std::cout << std::endl;
 
-    std::vector<int> guessBoard(4);
-    makeGuess(guessBoard);
-
-    std::vector<int> guessResult = checkGuess(guessBoard, realBoard, COLORS_CNT);
-    printVector(guessResult);
+    findSolution(realBoard, COLORS_CNT);
 
     return 0;
 }
